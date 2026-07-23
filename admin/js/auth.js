@@ -1,19 +1,6 @@
-// Auth State
-auth.onAuthStateChanged(user => {
-  const path = window.location.pathname;
-  // Reconhece tanto 'login.html' quanto 'login' sem extensão
-  const isLoginPage = path.includes('login');
-  const isDashboard = !isLoginPage;
-
-  if (user && isLoginPage) {
-    window.location.href = 'dashboard.html';
-  } else if (!user && isDashboard) {
-    window.location.href = 'login.html';
-  }
-});
-
-// Login
+// Configuração de Login Direta e Segura
 const loginForm = document.getElementById('loginForm');
+
 if (loginForm) {
   loginForm.addEventListener('submit', e => {
     e.preventDefault();
@@ -26,11 +13,11 @@ if (loginForm) {
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Entrando...';
 
     auth.signInWithEmailAndPassword(email, password)
-      .then(() => window.location.href = 'dashboard.html')
+      .then(() => {
+        window.location.href = 'dashboard.html';
+      })
       .catch(err => {
-        errorEl.textContent = err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password'
-          ? 'E-mail ou senha inválidos.'
-          : 'Erro ao entrar. Verifique os dados.';
+        errorEl.textContent = 'E-mail ou senha inválidos. Verifique os dados.';
         errorEl.style.display = 'block';
         btn.disabled = false;
         btn.innerHTML = 'Entrar';
@@ -43,6 +30,8 @@ const logoutBtn = document.getElementById('logoutBtn');
 if (logoutBtn) {
   logoutBtn.addEventListener('click', e => {
     e.preventDefault();
-    auth.signOut().then(() => window.location.href = 'login.html');
+    auth.signOut().then(() => {
+      window.location.href = 'login.html';
+    });
   });
 }
