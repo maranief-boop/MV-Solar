@@ -14,7 +14,7 @@ if (loginForm) {
 
     auth.signInWithEmailAndPassword(email, password)
       .then(() => {
-        window.location.href = 'dashboard.html';
+        window.location.href = './dashboard.html';
       })
       .catch(err => {
         errorEl.textContent = 'E-mail ou senha inválidos. Verifique os dados.';
@@ -31,7 +31,7 @@ if (logoutBtn) {
   logoutBtn.addEventListener('click', e => {
     e.preventDefault();
     auth.signOut().then(() => {
-      window.location.href = 'login.html';
+      window.location.href = './login.html';
     });
   });
 }
