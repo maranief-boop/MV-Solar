@@ -1,4 +1,4 @@
-// Configuração de Login Direta e Segura
+// Configuração de Login Direta e Segura - MV Solar CRM
 const loginForm = document.getElementById('loginForm');
 
 if (loginForm) {
@@ -13,10 +13,12 @@ if (loginForm) {
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Entrando...';
 
     auth.signInWithEmailAndPassword(email, password)
-      .then(() => {
-        window.location.href = './dashboard.html';
+      .then((userCredential) => {
+        // Sucesso no login: Redireciona usando caminho absoluto da raiz
+        window.location.replace('/admin/dashboard.html');
       })
       .catch(err => {
+        console.error("Erro no login:", err);
         errorEl.textContent = 'E-mail ou senha inválidos. Verifique os dados.';
         errorEl.style.display = 'block';
         btn.disabled = false;
@@ -31,7 +33,7 @@ if (logoutBtn) {
   logoutBtn.addEventListener('click', e => {
     e.preventDefault();
     auth.signOut().then(() => {
-      window.location.href = './login.html';
+      window.location.replace('/admin/login.html');
     });
   });
 }
