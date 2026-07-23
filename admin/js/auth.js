@@ -1,6 +1,8 @@
 // Auth State
 auth.onAuthStateChanged(user => {
-  const isLoginPage = window.location.pathname.includes('login.html') || window.location.pathname.endsWith('/admin/') || window.location.pathname.endsWith('/admin');
+  const path = window.location.pathname;
+  // Reconhece tanto 'login.html' quanto 'login' sem extensão
+  const isLoginPage = path.includes('login');
   const isDashboard = !isLoginPage;
 
   if (user && isLoginPage) {
