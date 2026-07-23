@@ -158,6 +158,10 @@
     .hero-visual {
       position: relative; display: flex; justify-content: center; align-items: center;
     }
+    .hero-img {
+      width: 100%; border-radius: 24px; margin-bottom: 24px;
+      box-shadow: 0 4px 30px rgba(0,0,0,0.06);
+    }
     .hero-card {
       background: #fff;
       border: 1px solid #e2e8f0;
@@ -556,9 +560,20 @@
       .nav-links.open { display: flex; }
       .menu-toggle { display: flex; }
       .navbar-inner { height: 64px; }
-      .hero { padding: 100px 0 60px; min-height: auto; }
-      .hero-visual { flex-direction: column; width: 100%; }
-      .hero-card { max-width: 100%; }
+      .hero { padding: 90px 0 40px; min-height: auto; }
+      .hero { padding: 90px 0 40px; min-height: auto; }
+      .hero-grid { gap: 24px; }
+      .hero p { max-width: 100%; }
+      .hero-stats { gap: 12px; }
+      .hero-stat { min-width: 70px; }
+      .hero-stat .number { font-size: 1.4rem; }
+      .hero-visual { flex-direction: column; width: 100%; max-width: 100%; }
+      .hero-visual .hero-img { width: calc(100% + 32px); max-width: none; border-radius: 0; margin: 0 -16px 16px; display: block; box-shadow: none; }
+      .hero-card { max-width: 100%; padding: 20px; width: 100%; }
+      .hero-card-footer { grid-template-columns: repeat(4,1fr); gap: 6px; }
+      .hero-card-footer .item { padding: 10px 6px; }
+      .hero-card-footer .item i { font-size: 1.1rem; }
+      .hero-card-footer .item span { font-size: 0.7rem; }
       .hero h1 { font-size: 2rem; }
       .hero p { font-size: 1rem; }
       .hero-slogan { font-size: 0.95rem; }
@@ -687,7 +702,7 @@
           </div>
         </div>
         <div class="hero-visual fade-up">
-          <img src="imagem1.png" alt="MV Solar - Energia Solar" style="width:100%;max-width:100%;border-radius:24px;margin-bottom:24px;box-shadow:0 4px 30px rgba(0,0,0,0.06);" />
+          <img src="imagem1.png" alt="MV Solar - Energia Solar" class="hero-img" />
           <div class="hero-card">
             <div class="hero-card-header">
               <h3>Economia Estimada</h3>
