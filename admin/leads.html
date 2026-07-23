@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Leads - MV Solar CRM</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .leads-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-bottom: 24px; }
+    .leads-header .filters { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+    .leads-header select, .leads-header input {
+      padding: 10px 14px; background: #fff; border: 1px solid #e2e8f0;
+      border-radius: 10px; font-size: 0.85rem; font-family: 'Inter', sans-serif;
+      color: #0f172a; outline: none;
+    }
+    .leads-header select:focus, .leads-header input:focus { border-color: #f97316; }
+    .leads-header input { min-width: 200px; }
+
+    .lead-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+    .lead-actions .btn { padding: 6px 12px; font-size: 0.78rem; }
+
+    .proposals-list { margin-top: 16px; }
+    .proposal-item {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 12px 16px; background: #f8fafc; border-radius: 10px; margin-bottom: 8px;
+    }
+    .proposal-item .info .value { font-weight: 700; color: #f97316; }
+    .proposal-item .info .detail { font-size: 0.82rem; color: #64748b; }
+    .proposal-item .actions { display: flex; gap: 6px; }
+
+    .tab-bar { display: flex; gap: 4px; margin-bottom: 0; background: #f1f5f9; border-radius: 12px; padding: 4px; }
+    .tab-bar button {
+      padding: 10px 20px; border: none; background: none; border-radius: 10px;
+      font-size: 0.85rem; font-weight: 500; cursor: pointer; color: #64748b;
+      font-family: 'Inter', sans-serif; transition: all 0.2s;
+    }
+    .tab-bar button.active { background: #fff; color: #0f172a; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+
+    .lead-detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+    .lead-detail-item label { display: block; font-size: 0.78rem; color: #64748b; margin-bottom: 4px; font-weight: 500; }
+    .lead-detail-item .value { font-size: 0.95rem; color: #0f172a; font-weight: 600; }
+  </style>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <img src="../logo.png" alt="MV Solar" />
+      <div class="brand-text">
+        <strong>MV Solar</strong>
+        <span>CRM</span>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="dashboard.html"><i class="fas fa-chart-pie"></i><span>Dashboard</span></a>
+      <a href="leads.html" class="active"><i class="fas fa-users"></i><span>Leads</span></a>
+      <a href="#" id="logoutBtn" class="logout"><i class="fas fa-sign-out-alt"></i><span>Sair</span></a>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <div class="main-header">
+      <div>
+        <h1>Leads</h1>
+        <p class="subtitle">Gerencie seus contatos e pipeline de vendas</p>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:24px;">
+      <div class="leads-header">
+        <div class="filters">
+          <select id="statusFilter">
+            <option value="">Todos os status</option>
+            <option value="novo">Novo</option>
+            <option value="contatado">Contatado</option>
+            <option value="negociando">Negociando</option>
+            <option value="fechado">Fechado</option>
+            <option value="perdido">Perdido</option>
+          </select>
+          <input type="text" id="searchInput" placeholder="Buscar por nome ou telefone..." />
+        </div>
+        <button class="btn btn-primary" onclick="openNewLeadModal()"><i class="fas fa-plus"></i> Novo Lead</button>
+      </div>
+
+      <div class="tab-bar">
+        <button class="active" onclick="changeView('table',this)"><i class="fas fa-list"></i> Lista</button>
+        <button onclick="changeView('kanban',this)"><i class="fas fa-columns"></i> Kanban</button>
+      </div>
+    </div>
+
+    <!-- Table View -->
+    <div class="card" id="tableView">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Nome</th>
+              <th>Telefone</th>
+              <th>Tipo</th>
+              <th>Conta de Luz</th>
+              <th>Status</th>
+              <th>Data</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody id="leadsTableBody">
+            <tr><td colspan="7"><div class="loading"><i class="fas fa-spinner fa-spin"></i></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Kanban View -->
+    <div id="kanbanView" style="display:none;">
+      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:16px;" id="kanbanGrid">
+        <div class="card" style="padding:16px;" data-status="novo">
+          <h4 style="font-size:0.85rem;color:#3b82f6;margin-bottom:12px;display:flex;align-items:center;gap:8px;"><i class="fas fa-circle" style="font-size:0.5rem;"></i> Novo <span id="kNovo" style="margin-left:auto;font-size:0.75rem;color:#94a3b8;">0</span></h4>
+          <div id="kanbanNovo"></div>
+        </div>
+        <div class="card" style="padding:16px;" data-status="contatado">
+          <h4 style="font-size:0.85rem;color:#f97316;margin-bottom:12px;display:flex;align-items:center;gap:8px;"><i class="fas fa-circle" style="font-size:0.5rem;"></i> Contatado <span id="kContatado" style="margin-left:auto;font-size:0.75rem;color:#94a3b8;">0</span></h4>
+          <div id="kanbanContatado"></div>
+        </div>
+        <div class="card" style="padding:16px;" data-status="negociando">
+          <h4 style="font-size:0.85rem;color:#8b5cf6;margin-bottom:12px;display:flex;align-items:center;gap:8px;"><i class="fas fa-circle" style="font-size:0.5rem;"></i> Negociando <span id="kNegociando" style="margin-left:auto;font-size:0.75rem;color:#94a3b8;">0</span></h4>
+          <div id="kanbanNegociando"></div>
+        </div>
+        <div class="card" style="padding:16px;" data-status="fechado">
+          <h4 style="font-size:0.85rem;color:#16a34a;margin-bottom:12px;display:flex;align-items:center;gap:8px;"><i class="fas fa-circle" style="font-size:0.5rem;"></i> Fechado <span id="kFechado" style="margin-left:auto;font-size:0.75rem;color:#94a3b8;">0</span></h4>
+          <div id="kanbanFechado"></div>
+        </div>
+        <div class="card" style="padding:16px;" data-status="perdido">
+          <h4 style="font-size:0.85rem;color:#ef4444;margin-bottom:12px;display:flex;align-items:center;gap:8px;"><i class="fas fa-circle" style="font-size:0.5rem;"></i> Perdido <span id="kPerdido" style="margin-left:auto;font-size:0.75rem;color:#94a3b8;">0</span></h4>
+          <div id="kanbanPerdido"></div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Modal Lead Detail -->
+  <div class="modal-overlay" id="leadModal">
+    <div class="modal" style="max-width:640px;">
+      <h2 id="leadModalTitle">Detalhes do Lead</h2>
+      <div id="leadDetailContent"></div>
+      <div style="margin:20px 0;">
+        <a href="#" id="whatsappLink" target="_blank" class="btn btn-success" style="text-decoration:none;display:inline-flex;"><i class="fab fa-whatsapp"></i> Falar no WhatsApp</a>
+      </div>
+      <div style="border-top:1px solid #e2e8f0;padding-top:20px;">
+        <h4 style="font-size:0.9rem;font-weight:600;margin-bottom:12px;">Propostas / Orçamentos</h4>
+        <div id="proposalsList"><p style="color:#94a3b8;font-size:0.85rem;">Nenhuma proposta cadastrada.</p></div>
+        <button class="btn btn-sm btn-primary" onclick="openNewProposal()" style="margin-top:8px;"><i class="fas fa-plus"></i> Nova Proposta</button>
+      </div>
+      <div style="border-top:1px solid #e2e8f0;padding-top:16px;margin-top:16px;">
+        <label style="font-size:0.82rem;color:#64748b;font-weight:500;display:block;margin-bottom:6px;">Alterar Status</label>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="btn btn-sm btn-outline" onclick="updateLeadStatus('novo')">Novo</button>
+          <button class="btn btn-sm btn-outline" onclick="updateLeadStatus('contatado')">Contatado</button>
+          <button class="btn btn-sm btn-outline" onclick="updateLeadStatus('negociando')">Negociando</button>
+          <button class="btn btn-sm btn-success" onclick="updateLeadStatus('fechado')">Fechado</button>
+          <button class="btn btn-sm btn-danger" onclick="updateLeadStatus('perdido')">Perdido</button>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-outline" onclick="closeModal()">Fechar</button>
+        <button class="btn btn-danger" onclick="deleteLead()" style="background:#ef4444;color:#fff;"><i class="fas fa-trash"></i> Excluir</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal New Lead -->
+  <div class="modal-overlay" id="newLeadModal">
+    <div class="modal">
+      <h2>Novo Lead</h2>
+      <form id="newLeadForm">
+        <div class="form-group">
+          <label>Nome completo *</label>
+          <input type="text" id="newNome" required />
+        </div>
+        <div class="form-group">
+          <label>Telefone / WhatsApp *</label>
+          <input type="tel" id="newTelefone" required oninput="maskPhone(this)" />
+        </div>
+        <div class="form-group">
+          <label>E-mail</label>
+          <input type="email" id="newEmail" />
+        </div>
+        <div class="form-group">
+          <label>Tipo de imóvel</label>
+          <select id="newTipoImovel">
+            <option value="">Selecione...</option>
+            <option value="Residencial">Residencial</option>
+            <option value="Comercial">Comercial</option>
+            <option value="Rural">Rural</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Valor da conta de luz (R$)</label>
+          <input type="number" id="newValorConta" min="0" />
+        </div>
+        <div class="form-group">
+          <label>Status inicial</label>
+          <select id="newStatus">
+            <option value="novo">Novo</option>
+            <option value="contatado">Contatado</option>
+            <option value="negociando">Negociando</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Observações</label>
+          <textarea id="newObs" rows="3"></textarea>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-outline" onclick="closeNewLeadModal()">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Salvar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal New Proposal -->
+  <div class="modal-overlay" id="newProposalModal">
+    <div class="modal">
+      <h2>Nova Proposta</h2>
+      <form id="newProposalForm">
+        <div class="form-group">
+          <label>Valor do Sistema (R$)</label>
+          <input type="number" id="propValor" required min="0" step="100" />
+        </div>
+        <div class="form-group">
+          <label>Economia Mensal Estimada (R$)</label>
+          <input type="number" id="propEconomia" required min="0" step="10" />
+        </div>
+        <div class="form-group">
+          <label>Número de Parcelas (Financiamento)</label>
+          <input type="number" id="propParcelas" value="72" min="1" max="120" />
+        </div>
+        <div class="form-group">
+          <label>Status da Proposta</label>
+          <select id="propStatus">
+            <option value="enviada">Enviada</option>
+            <option value="aprovada">Aprovada</option>
+            <option value="rejeitada">Rejeitada</option>
+          </select>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-outline" onclick="closeNewProposalModal()">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Salvar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+  <script src="js/firebase-config.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    let allLeads = [];
+    let selectedLeadId = null;
+    let selectedLeadData = null;
+    let currentView = 'table';
+
+    function showToast(msg, error) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.className = 'toast' + (error ? ' error' : '');
+      t.style.display = 'flex';
+      setTimeout(() => t.style.display = 'none', 3000);
+    }
+
+    // Load leads
+    function loadLeads() {
+      db.collection('leads').orderBy('createdAt', 'desc').onSnapshot(snapshot => {
+        allLeads = [];
+        snapshot.forEach(doc => allLeads.push({ id: doc.id, ...doc.data() }));
+        renderLeads();
+        renderKanban();
+      });
+    }
+
+    function getFilteredLeads() {
+      const status = document.getElementById('statusFilter').value;
+      const search = document.getElementById('searchInput').value.toLowerCase();
+      return allLeads.filter(l => {
+        if (status && l.status !== status) return false;
+        if (search) {
+          const nome = (l.nome || '').toLowerCase();
+          const tel = (l.telefone || '').toLowerCase();
+          if (!nome.includes(search) && !tel.includes(search)) return false;
+        }
+        return true;
+      });
+    }
+
+    // Filters
+    document.getElementById('statusFilter').addEventListener('change', renderLeads);
+    document.getElementById('searchInput').addEventListener('input', renderLeads);
+
+    function renderLeads() {
+      const filtered = getFilteredLeads();
+      const tbody = document.getElementById('leadsTableBody');
+      if (filtered.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><i class="fas fa-inbox"></i><p>Nenhum lead encontrado</p></div></td></tr>';
+        return;
+      }
+      tbody.innerHTML = filtered.map(l => `
+        <tr onclick="openLeadDetail('${l.id}')" style="cursor:pointer;">
+          <td><strong>${l.nome || 'Sem nome'}</strong></td>
+          <td>${l.telefone || '—'}</td>
+          <td>${l.tipoImovel ? `<span style="display:inline-flex;align-items:center;gap:4px;padding:2px 10px;background:#f1f5f9;border-radius:20px;font-size:0.78rem;color:#475569;">${l.tipoImovel}</span>` : '—'}</td>
+          <td>${l.valorConta ? 'R$ ' + l.valorConta : '—'}</td>
+          <td>${getStatusBadge(l.status || 'novo')}</td>
+          <td style="font-size:0.82rem;color:#64748b;">${formatDate(l.createdAt)}</td>
+          <td>
+            <div class="lead-actions" onclick="event.stopPropagation();">
+              <a href="https://wa.me/55${(l.telefone||'').replace(/\D/g,'')}?text=Ol%C3%A1%20${encodeURIComponent(l.nome||'')}%2C%20vi%20seu%20contato%20no%20site%20da%20MV%20Solar." target="_blank" class="btn btn-sm btn-success"><i class="fab fa-whatsapp"></i></a>
+              <button class="btn btn-sm btn-outline" onclick="openLeadDetail('${l.id}')"><i class="fas fa-eye"></i></button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function renderKanban() {
+      const statuses = ['novo', 'contatado', 'negociando', 'fechado', 'perdido'];
+      statuses.forEach(s => {
+        const items = allLeads.filter(l => (l.status || 'novo') === s);
+        const el = document.getElementById('kanban' + s.charAt(0).toUpperCase() + s.slice(1));
+        document.getElementById('k' + s.charAt(0).toUpperCase() + s.slice(1)).textContent = items.length;
+        if (!el) return;
+        if (items.length === 0) {
+          el.innerHTML = '<div style="padding:16px 8px;text-align:center;color:#94a3b8;font-size:0.78rem;">Nenhum lead</div>';
+          return;
+        }
+        el.innerHTML = items.map(l => `
+          <div onclick="openLeadDetail('${l.id}')" style="background:#f8fafc;border-radius:10px;padding:12px;margin-bottom:8px;cursor:pointer;border:1px solid #e2e8f0;">
+            <div style="font-weight:600;font-size:0.85rem;color:#0f172a;">${l.nome || 'Sem nome'}</div>
+            <div style="font-size:0.78rem;color:#64748b;margin-top:4px;">${l.telefone || ''} ${l.valorConta ? '• R$'+l.valorConta : ''}</div>
+            <div style="display:flex;gap:6px;margin-top:4px;flex-wrap:wrap;">
+              ${l.tipoImovel ? `<span style="font-size:0.7rem;padding:1px 8px;background:#f1f5f9;border-radius:12px;color:#475569;">${l.tipoImovel}</span>` : ''}
+              <span style="font-size:0.72rem;color:#94a3b8;">${formatDateShort(l.createdAt)}</span>
+            </div>
+          </div>
+        `).join('');
+      });
+    }
+
+    function changeView(view, btn) {
+      currentView = view;
+      document.querySelectorAll('.tab-bar button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('tableView').style.display = view === 'table' ? 'block' : 'none';
+      document.getElementById('kanbanView').style.display = view === 'kanban' ? 'block' : 'none';
+    }
+
+    // Lead Detail
+    window.openLeadDetail = function(id) {
+      selectedLeadId = id;
+      const lead = allLeads.find(l => l.id === id);
+      if (!lead) return;
+      selectedLeadData = lead;
+
+      document.getElementById('leadModalTitle').textContent = 'Detalhes do Lead';
+      document.getElementById('leadDetailContent').innerHTML = `
+        <div class="lead-detail-grid">
+          <div class="lead-detail-item">
+            <label>Nome</label>
+            <div class="value">${lead.nome || '—'}</div>
+          </div>
+          <div class="lead-detail-item">
+            <label>Telefone</label>
+            <div class="value">${lead.telefone || '—'}</div>
+          </div>
+          <div class="lead-detail-item">
+            <label>E-mail</label>
+            <div class="value">${lead.email || '—'}</div>
+          </div>
+          <div class="lead-detail-item">
+            <label>Tipo de Imóvel</label>
+            <div class="value">${lead.tipoImovel || '—'}</div>
+          </div>
+          <div class="lead-detail-item">
+            <label>Valor da Conta</label>
+            <div class="value">${lead.valorConta ? 'R$ ' + lead.valorConta : '—'}</div>
+          </div>
+          <div class="lead-detail-item">
+            <label>Status</label>
+            <div class="value">${getStatusBadge(lead.status || 'novo')}</div>
+          </div>
+          <div class="lead-detail-item">
+            <label>Data de Cadastro</label>
+            <div class="value">${formatDate(lead.createdAt)}</div>
+          </div>
+        </div>
+        ${lead.observacoes ? `<div style="margin-bottom:16px;"><label style="font-size:0.78rem;color:#64748b;font-weight:500;display:block;margin-bottom:4px;">Observações</label><p style="font-size:0.88rem;color:#0f172a;">${lead.observacoes}</p></div>` : ''}
+      `;
+
+      // WhatsApp link
+      const tel = (lead.telefone || '').replace(/\D/g, '');
+      const wppLink = document.getElementById('whatsappLink');
+      if (tel) {
+        wppLink.href = 'https://wa.me/55' + tel + '?text=Ol%C3%A1%20' + encodeURIComponent(lead.nome || '') + '%2C%20vi%20seu%20contato%20no%20CRM%20da%20MV%20Solar.';
+        wppLink.style.display = 'inline-flex';
+      } else {
+        wppLink.style.display = 'none';
+      }
+
+      // Load proposals
+      loadProposals(id);
+
+      document.getElementById('leadModal').classList.add('open');
+    };
+
+    function loadProposals(leadId) {
+      db.collection('proposals').where('leadId', '==', leadId).orderBy('createdAt', 'desc').onSnapshot(snapshot => {
+        const proposals = [];
+        snapshot.forEach(doc => proposals.push({ id: doc.id, ...doc.data() }));
+        const container = document.getElementById('proposalsList');
+        if (proposals.length === 0) {
+          container.innerHTML = '<p style="color:#94a3b8;font-size:0.85rem;">Nenhuma proposta cadastrada.</p>';
+          return;
+        }
+        container.innerHTML = proposals.map(p => `
+          <div class="proposal-item">
+            <div class="info">
+              <div class="value">${formatCurrency(p.valorSistema)}</div>
+              <div class="detail">Economia: ${formatCurrency(p.economiaMensal)}/mês • ${p.parcelas || '—'}x</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;">
+              ${getProposalStatusBadge(p.status || 'enviada')}
+              <button class="btn btn-sm btn-outline" onclick="deleteProposal('${p.id}')"><i class="fas fa-trash" style="color:#ef4444;"></i></button>
+            </div>
+          </div>
+        `).join('');
+      });
+    }
+
+    window.updateLeadStatus = function(status) {
+      if (!selectedLeadId) return;
+      db.collection('leads').doc(selectedLeadId).update({ status, updatedAt: firebase.firestore.FieldValue.serverTimestamp() })
+        .then(() => {
+          showToast('Status atualizado para ' + status);
+          openLeadDetail(selectedLeadId);
+        });
+    };
+
+    window.deleteLead = function() {
+      if (!selectedLeadId || !confirm('Tem certeza que deseja excluir este lead?')) return;
+      db.collection('leads').doc(selectedLeadId).delete().then(() => {
+        showToast('Lead excluído');
+        closeModal();
+      });
+    };
+
+    function closeModal() {
+      document.getElementById('leadModal').classList.remove('open');
+      selectedLeadId = null;
+    }
+
+    // New Lead Modal
+    window.openNewLeadModal = function() {
+      document.getElementById('newLeadModal').classList.add('open');
+    };
+    window.closeNewLeadModal = function() {
+      document.getElementById('newLeadModal').classList.remove('open');
+      document.getElementById('newLeadForm').reset();
+    };
+    document.getElementById('newLeadForm').addEventListener('submit', e => {
+      e.preventDefault();
+      const data = {
+        nome: document.getElementById('newNome').value.trim(),
+        telefone: document.getElementById('newTelefone').value.trim(),
+        email: document.getElementById('newEmail').value.trim(),
+        tipoImovel: document.getElementById('newTipoImovel').value,
+        valorConta: document.getElementById('newValorConta').value || '',
+        status: document.getElementById('newStatus').value,
+        observacoes: document.getElementById('newObs').value.trim(),
+        origem: 'crm',
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      };
+      db.collection('leads').add(data).then(() => {
+        showToast('Lead cadastrado com sucesso!');
+        closeNewLeadModal();
+      });
+    });
+
+    // New Proposal Modal
+    let newProposalLeadId = null;
+    window.openNewProposal = function() {
+      newProposalLeadId = selectedLeadId;
+      document.getElementById('newProposalModal').classList.add('open');
+    };
+    window.closeNewProposalModal = function() {
+      document.getElementById('newProposalModal').classList.remove('open');
+      document.getElementById('newProposalForm').reset();
+      newProposalLeadId = null;
+    };
+    document.getElementById('newProposalForm').addEventListener('submit', e => {
+      e.preventDefault();
+      if (!newProposalLeadId) return;
+      const data = {
+        leadId: newProposalLeadId,
+        leadName: selectedLeadData ? selectedLeadData.nome : '',
+        valorSistema: Number(document.getElementById('propValor').value),
+        economiaMensal: Number(document.getElementById('propEconomia').value),
+        parcelas: Number(document.getElementById('propParcelas').value),
+        status: document.getElementById('propStatus').value,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      };
+      db.collection('proposals').add(data).then(() => {
+        showToast('Proposta cadastrada!');
+        closeNewProposalModal();
+      });
+    });
+
+    window.deleteProposal = function(id) {
+      if (!confirm('Excluir esta proposta?')) return;
+      db.collection('proposals').doc(id).delete().then(() => showToast('Proposta excluída'));
+    };
+
+    loadLeads();
+  </script>
+</body>
+</html>
