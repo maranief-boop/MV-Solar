@@ -1,6 +1,22 @@
-// Configuração de Login Direta e Segura - MV Solar CRM
-const loginForm = document.getElementById('loginForm');
+const ADMIN_BASE = '/admin/';
 
+function redirect(path) {
+  window.location.replace(ADMIN_BASE + path);
+}
+
+auth.onAuthStateChanged(user => {
+  const path = window.location.pathname;
+  const isLoginPage = path.includes('login.html');
+  const isAdminPage = path.startsWith(ADMIN_BASE);
+
+  if (user && isLoginPage) {
+    redirect('dashboard.html');
+  } else if (!user && isAdminPage && !isLoginPage) {
+    redirect('login.html');
+  }
+});
+
+const loginForm = document.getElementById('loginForm');
 if (loginForm) {
   loginForm.addEventListener('submit', e => {
     e.preventDefault();
@@ -13,27 +29,26 @@ if (loginForm) {
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Entrando...';
 
     auth.signInWithEmailAndPassword(email, password)
-      .then((userCredential) => {
-        // Sucesso no login: Redireciona usando caminho absoluto da raiz
-        window.location.replace('/admin/dashboard.html');
-      })
+      .then(() => redirect('dashboard.html'))
       .catch(err => {
-        console.error("Erro no login:", err);
-        errorEl.textContent = 'E-mail ou senha inválidos. Verifique os dados.';
-        errorEl.style.display = 'block';
         btn.disabled = false;
         btn.innerHTML = 'Entrar';
+        if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password') {
+          errorEl.textContent = 'E-mail ou senha inválidos.';
+        } else if (err.code === 'auth/too-many-requests') {
+          errorEl.textContent = 'Muitas tentativas. Aguarde e tente novamente.';
+        } else {
+          errorEl.textContent = 'Erro ao entrar. Verifique os dados.';
+        }
+        errorEl.style.display = 'block';
       });
   });
 }
 
-// Logout
 const logoutBtn = document.getElementById('logoutBtn');
 if (logoutBtn) {
   logoutBtn.addEventListener('click', e => {
     e.preventDefault();
-    auth.signOut().then(() => {
-      window.location.replace('/admin/login.html');
-    });
+    auth.signOut().then(() => redirect('login.html'));
   });
 }
