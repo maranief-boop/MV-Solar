@@ -18,7 +18,10 @@
       color: #0f172a;
       line-height: 1.6;
       overflow-x: hidden;
+      width: 100%;
     }
+    img { max-width: 100%; height: auto; }
+    iframe { max-width: 100%; }
     ::-webkit-scrollbar { width: 8px; }
     ::-webkit-scrollbar-track { background: #f1f5f9; }
     ::-webkit-scrollbar-thumb { background: #f97316; border-radius: 4px; }
@@ -528,10 +531,10 @@
 
     /* Responsive */
     @media (max-width: 1024px) {
-      .hero-grid { grid-template-columns: 1fr; gap: 40px; text-align: center; }
-      .hero p { margin-left: auto; margin-right: auto; }
+      .hero-grid { grid-template-columns: 1fr; gap: 32px; text-align: center; }
+      .hero p { margin-left: auto; margin-right: auto; max-width: 100%; }
       .hero-buttons { justify-content: center; }
-      .hero-stats { justify-content: center; }
+      .hero-stats { justify-content: center; gap: 24px; }
       .calc-wrapper { grid-template-columns: 1fr; }
       .steps-grid { grid-template-columns: repeat(2, 1fr); }
       .steps-grid::before { display: none; }
@@ -539,6 +542,8 @@
       .contact-grid { grid-template-columns: 1fr; }
       .footer-grid { grid-template-columns: 1fr 1fr; }
       .hero h1 { font-size: 2.5rem; }
+      .container { padding: 0 24px; }
+      section { padding: 80px 0; }
     }
     @media (max-width: 768px) {
       .nav-links {
@@ -550,29 +555,75 @@
       }
       .nav-links.open { display: flex; }
       .menu-toggle { display: flex; }
-      .hero { padding: 100px 0 60px; }
+      .navbar-inner { height: 64px; }
+      .hero { padding: 100px 0 60px; min-height: auto; }
+      .hero-visual { flex-direction: column; width: 100%; }
+      .hero-card { max-width: 100%; }
       .hero h1 { font-size: 2rem; }
+      .hero p { font-size: 1rem; }
+      .hero-slogan { font-size: 0.95rem; }
       .hero-buttons { flex-direction: column; align-items: center; }
-      .btn { width: 100%; justify-content: center; }
-      .hero-card { padding: 24px; }
-      .section-title { font-size: 1.8rem; }
-      .calc-wrapper { padding: 24px; }
-      .steps-grid { grid-template-columns: 1fr; }
-      .footer-grid { grid-template-columns: 1fr; }
-      .whatsapp-float { width: 52px; height: 52px; font-size: 1.3rem; bottom: 20px; right: 20px; }
-      .chat-widget { left: 20px; bottom: 84px; }
-      .chat-box { width: calc(100vw - 40px); left: 0; }
+      .btn { width: 100%; justify-content: center; padding: 14px 24px; font-size: 0.9rem; }
+      .hero-card { padding: 20px; }
+      .hero-card-footer { gap: 8px; }
+      .section-title { font-size: 1.6rem; }
+      .section-subtitle { font-size: 0.95rem; margin-bottom: 32px; }
+      .calc-wrapper { padding: 20px; }
+      .steps-grid { grid-template-columns: 1fr; gap: 32px; }
+      .step-card { max-width: 320px; margin: 0 auto; }
+      .footer-grid { grid-template-columns: 1fr; gap: 32px; }
+      .whatsapp-float { width: 52px; height: 52px; font-size: 1.3rem; bottom: 16px; right: 16px; }
+      .chat-widget { left: 16px; bottom: 80px; }
+      .chat-box { width: calc(100vw - 32px); left: 0; }
       .form-row { grid-template-columns: 1fr; }
       .hero-card-footer { grid-template-columns: 1fr 1fr; }
       .area-list { grid-template-columns: 1fr; }
+      .hero-stat .number { font-size: 1.5rem; }
+      .hero-stat .label { font-size: 0.75rem; }
+      .container { padding: 0 16px; }
+      section { padding: 60px 0; }
+      .area-map iframe { height: 240px !important; }
+      .benefit-card { padding: 24px; }
+      .testimonial-card { padding: 24px; }
+      .contact-form { padding: 24px; }
+      .calc-left h3 { font-size: 1.1rem; }
+      .logo-text .slogan { font-size: 0.6rem; }
     }
     @media (max-width: 480px) {
-      .hero h1 { font-size: 1.6rem; }
-      .hero-stat .number { font-size: 1.4rem; }
-      .calc-result-item .value { font-size: 1.1rem; }
-      .calc-result-item .value.large { font-size: 1.3rem; }
-      .logo img { height: 42px; }
-      .logo-text .name { font-size: 1rem; }
+      .hero h1 { font-size: 1.5rem; }
+      .hero-slogan { font-size: 0.85rem; }
+      .hero p { font-size: 0.92rem; }
+      .hero-badge { font-size: 0.75rem; padding: 6px 12px; }
+      .hero-stat .number { font-size: 1.3rem; }
+      .hero-stats { gap: 16px; }
+      .hero-stat { min-width: 80px; }
+      .calc-result-item .value { font-size: 1rem; }
+      .calc-result-item .value.large { font-size: 1.2rem; }
+      .calc-result-item { padding: 14px 0; }
+      .section-title { font-size: 1.4rem; }
+      .section-subtitle { font-size: 0.88rem; }
+      .logo img { height: 36px; }
+      .logo-text .name { font-size: 0.9rem; }
+      .logo-text .slogan { font-size: 0.55rem; }
+      .navbar-inner { height: 60px; }
+      .steps-grid { gap: 24px; }
+      .step-number { width: 48px; height: 48px; font-size: 1.1rem; }
+      .contact-item { flex-direction: column; text-align: center; }
+      .contact-item .icon { margin: 0 auto; }
+      .footer-grid { gap: 24px; }
+      .area-map iframe { height: 200px !important; }
+      .whatsapp-float .tooltip { display: none; }
+      .chat-toggle { width: 44px; height: 44px; font-size: 1rem; }
+      .chat-widget { bottom: 76px; }
+    }
+    @media (max-width: 375px) {
+      .hero h1 { font-size: 1.3rem; }
+      .hero-stats { gap: 12px; }
+      .hero-stat .number { font-size: 1.1rem; }
+      .btn { padding: 12px 20px; font-size: 0.85rem; }
+      .benefit-card { padding: 20px; }
+      .benefit-icon { width: 48px; height: 48px; font-size: 1.2rem; }
+      .calc-input-group input[type="number"] { width: 80px; font-size: 0.95rem; }
     }
   </style>
 </head>
@@ -636,7 +687,7 @@
           </div>
         </div>
         <div class="hero-visual fade-up">
-          <img src="imagem1.png" alt="MV Solar - Energia Solar" style="width:100%;max-width:420px;border-radius:24px;margin-bottom:24px;box-shadow:0 4px 30px rgba(0,0,0,0.06);" />
+          <img src="imagem1.png" alt="MV Solar - Energia Solar" style="width:100%;max-width:100%;border-radius:24px;margin-bottom:24px;box-shadow:0 4px 30px rgba(0,0,0,0.06);" />
           <div class="hero-card">
             <div class="hero-card-header">
               <h3>Economia Estimada</h3>
@@ -677,7 +728,7 @@
         <p class="section-subtitle mx-auto">Economia real, valorização do seu patrimônio e contribuição para um futuro mais sustentável.</p>
       </div>
       <div class="fade-up" style="text-align:center;margin-bottom:32px;">
-        <img src="imagem2.png" alt="MV Solar - Vantagens" style="max-width:100%;border-radius:20px;box-shadow:0 4px 30px rgba(0,0,0,0.04);" />
+        <img src="imagem2.png" alt="MV Solar - Vantagens" style="width:100%;max-width:100%;border-radius:20px;box-shadow:0 4px 30px rgba(0,0,0,0.04);" />
       </div>
       <div class="benefits-grid">
         <div class="benefit-card fade-up">
@@ -773,7 +824,7 @@
         <p class="section-subtitle mx-auto">Processo simples, transparente e rápido. Da simulação à economia na sua conta.</p>
       </div>
       <div class="fade-up" style="text-align:center;margin-bottom:32px;">
-        <img src="imagem3.png" alt="MV Solar - Processo" style="max-width:100%;border-radius:20px;box-shadow:0 4px 30px rgba(0,0,0,0.04);" />
+        <img src="imagem3.png" alt="MV Solar - Processo" style="width:100%;max-width:100%;border-radius:20px;box-shadow:0 4px 30px rgba(0,0,0,0.04);" />
       </div>
       <div class="steps-grid">
         <div class="step-card fade-up">
@@ -849,7 +900,7 @@
         <p class="section-subtitle mx-auto">A satisfação dos nossos clientes é o nosso maior reconhecimento.</p>
       </div>
       <div class="fade-up" style="text-align:center;margin-bottom:32px;">
-        <img src="imagem4.png" alt="MV Solar - Clientes" style="max-width:100%;border-radius:20px;box-shadow:0 4px 30px rgba(0,0,0,0.04);" />
+        <img src="imagem4.png" alt="MV Solar - Clientes" style="width:100%;max-width:100%;border-radius:20px;box-shadow:0 4px 30px rgba(0,0,0,0.04);" />
       </div>
       <div class="testimonials-grid">
         <div class="testimonial-card fade-up">
